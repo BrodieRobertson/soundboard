@@ -34,19 +34,23 @@ with open(config_path) as config:
         except KeyError:
             print(f'Missing key in binding {i}')
             sys.exit(1)
-
         try:
             sound = binding['sound']
         except KeyError:
-            print('Missing sound key in binding {i}')
+            print('Missing sound in binding {i}')
             sys.exit(1)
-
         try:
             name = binding['name']
         except KeyError:
             name = None
 
-        bindings[key] = (sound, name)
+        try:
+            audio_segment = AudioSegment.from_file(sound)
+        except FileNotFoundError:
+            print(f'Sound file does not exist in binding {i}')
+            sys.exit(1)
+
+        bindings[key] = (sound, name, audio_segment)
         i+=1
 
     try:
@@ -65,10 +69,10 @@ def key_names(key):
 
 def play_song(song):
     # Debug Code
-    # ten_seconds = 3 * 1000
-    # first_10_seconds = song[:ten_seconds]
-    # play(first_10_seconds)
-    play(song)
+    ten_seconds = 3 * 1000
+    first_10_seconds = song[:ten_seconds]
+    play(first_10_seconds)
+    # play(song)
 
 def help_screen():
     for key in bindings:
@@ -79,16 +83,14 @@ def on_press(key):
         if key.char == help_key:
             help_screen()
         elif key.char in bindings:
-            song = AudioSegment.from_file(bindings[key.char])
-            play_song(song)
+            play_song(bindings[key.char][2])
     except AttributeError:
         if key in special_keys:
             key = special_keys[key]
         if key == help_key:
             help_screen()
         elif key in bindings:
-            song = AudioSegment.from_file(bindings[key][0])
-            play_song(song)
+            play_song(bindings[key][2])
 
 # Collect events until released
 with keyboard.Listener(
