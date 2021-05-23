@@ -4,6 +4,7 @@ from pynput.keyboard import Key, Controller
 from pydub import AudioSegment
 from pydub.playback import play
 import json
+import sys
 from os.path import expanduser
 
 keyboard_controller = Controller()
@@ -25,18 +26,32 @@ special_keys = {'f1': Key.f1,
 
 with open(config_path) as config:
     data = json.load(config)
-    for key in data['bindings']:
-        if key['key'] in special_keys:
-            bindings[special_keys[key['key']]] = key['sound']
-        else:
-            bindings[key['key']] = key['sound']
+    for binding in data['bindings']:
+        try:
+            key = binding['key']
+        except KeyError:
+            print('Missing key')
+            sys.exit(1)
+
+        try:
+            sound = binding['sound']
+        except KeyError:
+            print('Missing sound')
+            sys.exit(1)
+
+        try:
+            name = binding['name']
+        except KeyError:
+            name = None
+
+        bindings[key] = (sound, name)
 
 def play_song(song):
     # Debug Code
-    # ten_seconds = 3 * 1000
-    # first_10_seconds = song[:ten_seconds]
-    # play(first_10_seconds)
-    play(song)
+    ten_seconds = 3 * 1000
+    first_10_seconds = song[:ten_seconds]
+    play(first_10_seconds)
+    # play(song)
 
 def on_press(key):
     try:
