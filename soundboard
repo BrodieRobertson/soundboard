@@ -12,6 +12,7 @@ config_path = expanduser("~") + "/.config/soundboard.json"
 bindings = {}
 help_key = "?"
 
+# User friendly form of key names
 special_keys = {Key.f1: 'f1',
         Key.f2: 'f2',
         Key.f3: 'f3',
@@ -29,6 +30,7 @@ with open(config_path) as config:
     data = json.load(config)
     i = 1
     for binding in data['bindings']:
+        # Load in audio clip bindings from file
         try:
             key = binding['key']
         except KeyError:
@@ -47,14 +49,17 @@ with open(config_path) as config:
             repeat = binding['repeat']
         except KeyError:
             repeat = 1
-
+        try:
+            volume = binding['volume']
+        except KeyError:
+            volume = 0
         try:
             audio_segment = AudioSegment.from_file(sound)
         except FileNotFoundError:
             print(f'Sound file does not exist in binding {i}')
             sys.exit(1)
 
-        bindings[key] = (name, sound, audio_segment, repeat)
+        bindings[key] = (name, sound, audio_segment, repeat, volume)
         i+=1
 
     try:
@@ -62,7 +67,7 @@ with open(config_path) as config:
     except KeyError:
         pass
 
-
+# Print out debug key names
 def key_names(key):
     try:
         print('alphanumeric key {0} pressed'.format(
@@ -71,8 +76,8 @@ def key_names(key):
         print('special key {0} pressed'.format(
             key))
 
-def play_song(song):
-    play(song)
+def play_song(song, repeat, volume):
+    play((song * repeat) + volume)
 
 def help_screen():
     for key in bindings:
@@ -83,14 +88,16 @@ def on_press(key):
         if key.char == help_key:
             help_screen()
         elif key.char in bindings:
-            play_song(bindings[key.char][2] * bindings[key.char][3])
+            binding = bindings[key.char]
+            play_song(binding[2], binding[3], binding[4])
     except AttributeError:
         if key in special_keys:
             key = special_keys[key]
         if key == help_key:
             help_screen()
         elif key in bindings:
-            play_song(bindings[key][2] * bindings[key][3])
+            binding = bindings[key]
+            play_song(binding[2], binding[3], binding[4])
 
 # Collect events until released
 with keyboard.Listener(
