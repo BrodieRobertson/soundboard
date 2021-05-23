@@ -48,7 +48,6 @@ with open(config_path) as config:
         bindings[key] = (sound, name)
 
     try:
-        print(data['help'])
         help_key = data['help']
     except KeyError:
         pass
