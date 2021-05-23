@@ -10,19 +10,20 @@ from os.path import expanduser
 keyboard_controller = Controller()
 config_path = expanduser("~") + "/.config/soundboard.json"
 bindings = {}
+help_key = "?"
 
-special_keys = {'f1': Key.f1,
-        'f2': Key.f2,
-        'f3': Key.f3,
-        'f4': Key.f4,
-        'f5': Key.f5,
-        'f6': Key.f6,
-        'f7': Key.f7,
-        'f8': Key.f8,
-        'f9': Key.f9,
-        'f10': Key.f10,
-        'f11': Key.f11,
-        'f12': Key.f12}
+special_keys = {Key.f1: 'f1',
+        Key.f2: 'f2',
+        Key.f3: 'f3',
+        Key.f4: 'f4',
+        Key.f5: 'f5',
+        Key.f6: 'f6',
+        Key.f7: 'f7',
+        Key.f8: 'f8',
+        Key.f9: 'f9',
+        Key.f10: 'f10',
+        Key.f11: 'f11',
+        Key.f12: 'f12'}
 
 with open(config_path) as config:
     data = json.load(config)
@@ -46,21 +47,46 @@ with open(config_path) as config:
 
         bindings[key] = (sound, name)
 
+    try:
+        print(data['help'])
+        help_key = data['help']
+    except KeyError:
+        pass
+
+
+def key_names(key):
+    try:
+        print('alphanumeric key {0} pressed'.format(
+            key.char))
+    except AttributeError:
+        print('special key {0} pressed'.format(
+            key))
+
 def play_song(song):
     # Debug Code
-    ten_seconds = 3 * 1000
-    first_10_seconds = song[:ten_seconds]
-    play(first_10_seconds)
-    # play(song)
+    # ten_seconds = 3 * 1000
+    # first_10_seconds = song[:ten_seconds]
+    # play(first_10_seconds)
+    play(song)
+
+def help_screen():
+    for key in bindings:
+        print(f"{key}: {bindings[key][1]}: {bindings[key][0]}")
 
 def on_press(key):
     try:
-        if key.char in bindings:
+        if key.char == help_key:
+            help_screen()
+        elif key.char in bindings:
             song = AudioSegment.from_file(bindings[key.char])
             play_song(song)
     except AttributeError:
-        if key in bindings:
-            song = AudioSegment.from_file(bindings[key])
+        if key in special_keys:
+            key = special_keys[key]
+        if key == help_key:
+            help_screen()
+        elif key in bindings:
+            song = AudioSegment.from_file(bindings[key][0])
             play_song(song)
 
 # Collect events until released
