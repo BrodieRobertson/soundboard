@@ -39,7 +39,7 @@ with open(config_path) as config:
         try:
             sound = binding['sound']
         except KeyError:
-            print('Missing sound in binding {i}')
+            print(f'Missing sound in binding {i}')
             sys.exit(1)
         try:
             name = binding['name']
@@ -47,18 +47,34 @@ with open(config_path) as config:
             name = None
         try:
             repeat = binding['repeat']
+            if not isinstance(repeat, int):
+                print(f'Repeat is not number in binding {i}')
+                sys.exit(1)
+            elif repeat < 1:
+                print(f'Repeat is less than 1 in binding {i}')
+                sys.exit(1)
+
         except KeyError:
             repeat = 1
         try:
             volume = binding['volume']
+            if not isinstance(volume, int):
+                print(f'Volume is not number in binding {i}')
+                sys.exit(1)
         except KeyError:
             volume = 0
         try:
             start = binding['start']
+            if not isinstance(start, int):
+                print(f'Start is not number in binding {i}')
+                sys.exit(1)
         except KeyError:
             start = None
         try:
             end = binding['end']
+            if not isinstance(end, int):
+                print(f'End is not number in binding {i}')
+                sys.exit(1)
         except KeyError:
             end = None
         try:
