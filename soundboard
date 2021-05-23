@@ -24,7 +24,34 @@ special_keys = {Key.f1: 'f1',
         Key.f9: 'f9',
         Key.f10: 'f10',
         Key.f11: 'f11',
-        Key.f12: 'f12'}
+        Key.f12: 'f12',
+        Key.esc: 'esc',
+        Key.tab: 'tab',
+        Key.caps_lock: 'caps_lock',
+        Key.shift: 'shift',
+        Key.ctrl: 'ctrl',
+        Key.cmd: 'cmd',
+        Key.alt: 'alt',
+        Key.backspace: 'backspace',
+        Key.enter: 'enter',
+        Key.shift_r: 'shift_r',
+        Key.ctrl_r: 'ctrl_r',
+        Key.menu: 'menu',
+        Key.alt_r: 'alt_r',
+        Key.print_screen: 'print_screen',
+        Key.scroll_lock: 'scroll_lock',
+        Key.pause: 'pause',
+        Key.insert: 'insert',
+        Key.home: 'home',
+        Key.page_up: 'page_up',
+        Key.page_down: 'page_down',
+        Key.delete: 'delete',
+        Key.end: 'end',
+        Key.num_lock: 'num_lock',
+        Key.up: 'up',
+        Key.left: 'left',
+        Key.right: 'right',
+        Key.down: 'down'}
 
 with open(config_path) as config:
     data = json.load(config)
@@ -117,6 +144,7 @@ def help_screen():
         print(f"{key}: {bindings[key][0]}: {bindings[key][1]}")
 
 def on_press(key):
+    key_names(key)
     try:
         if key.char == help_key:
             help_screen()
