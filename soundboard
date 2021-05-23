@@ -27,17 +27,18 @@ special_keys = {Key.f1: 'f1',
 
 with open(config_path) as config:
     data = json.load(config)
+    i = 1
     for binding in data['bindings']:
         try:
             key = binding['key']
         except KeyError:
-            print('Missing key')
+            print(f'Missing key in binding {i}')
             sys.exit(1)
 
         try:
             sound = binding['sound']
         except KeyError:
-            print('Missing sound')
+            print('Missing sound key in binding {i}')
             sys.exit(1)
 
         try:
@@ -46,6 +47,7 @@ with open(config_path) as config:
             name = None
 
         bindings[key] = (sound, name)
+        i+=1
 
     try:
         help_key = data['help']
