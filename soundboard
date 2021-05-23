@@ -54,12 +54,20 @@ with open(config_path) as config:
         except KeyError:
             volume = 0
         try:
+            start = binding['start']
+        except KeyError:
+            start = None
+        try:
+            end = binding['end']
+        except KeyError:
+            end = None
+        try:
             audio_segment = AudioSegment.from_file(sound)
         except FileNotFoundError:
             print(f'Sound file does not exist in binding {i}')
             sys.exit(1)
 
-        bindings[key] = (name, sound, audio_segment, repeat, volume)
+        bindings[key] = (name, sound, audio_segment, repeat, volume, start, end)
         i+=1
 
     try:
@@ -76,7 +84,16 @@ def key_names(key):
         print('special key {0} pressed'.format(
             key))
 
-def play_song(song, repeat, volume):
+def play_song(song, repeat, volume, start, end):
+    # Splice the audio clip
+    if start != None and end == None:
+        song = song[start:]
+    elif start == None and end != None:
+        song = song[:end]
+    elif start != None and end != None:
+        song = song[start:end]
+
+    # Apply effects after slicing to avoid being cut
     play((song * repeat) + volume)
 
 def help_screen():
@@ -89,7 +106,7 @@ def on_press(key):
             help_screen()
         elif key.char in bindings:
             binding = bindings[key.char]
-            play_song(binding[2], binding[3], binding[4])
+            play_song(binding[2], binding[3], binding[4], binding[5], binding[6])
     except AttributeError:
         if key in special_keys:
             key = special_keys[key]
@@ -97,7 +114,7 @@ def on_press(key):
             help_screen()
         elif key in bindings:
             binding = bindings[key]
-            play_song(binding[2], binding[3], binding[4])
+            play_song(binding[2], binding[3], binding[4], binding[5], binding[6])
 
 # Collect events until released
 with keyboard.Listener(
