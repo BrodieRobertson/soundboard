@@ -43,6 +43,10 @@ with open(config_path) as config:
             name = binding['name']
         except KeyError:
             name = None
+        try:
+            repeat = binding['repeat']
+        except KeyError:
+            repeat = 1
 
         try:
             audio_segment = AudioSegment.from_file(sound)
@@ -50,7 +54,7 @@ with open(config_path) as config:
             print(f'Sound file does not exist in binding {i}')
             sys.exit(1)
 
-        bindings[key] = (sound, name, audio_segment)
+        bindings[key] = (name, sound, audio_segment, repeat)
         i+=1
 
     try:
@@ -68,29 +72,25 @@ def key_names(key):
             key))
 
 def play_song(song):
-    # Debug Code
-    ten_seconds = 3 * 1000
-    first_10_seconds = song[:ten_seconds]
-    play(first_10_seconds)
-    # play(song)
+    play(song)
 
 def help_screen():
     for key in bindings:
-        print(f"{key}: {bindings[key][1]}: {bindings[key][0]}")
+        print(f"{key}: {bindings[key][0]}: {bindings[key][1]}")
 
 def on_press(key):
     try:
         if key.char == help_key:
             help_screen()
         elif key.char in bindings:
-            play_song(bindings[key.char][2])
+            play_song(bindings[key.char][2] * bindings[key.char][3])
     except AttributeError:
         if key in special_keys:
             key = special_keys[key]
         if key == help_key:
             help_screen()
         elif key in bindings:
-            play_song(bindings[key][2])
+            play_song(bindings[key][2] * bindings[key][3])
 
 # Collect events until released
 with keyboard.Listener(
