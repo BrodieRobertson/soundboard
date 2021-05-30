@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">git-bug</h1>
+  <h1 align="center">soundboard</h1>
 </p>
 
 ## Features
@@ -18,7 +18,7 @@
 
 ## Dependencies
 
-* [pynput]() for keyboard input
-* [pydub]() for generic audio playback
+* [pynput](https://github.com/moses-palmer/pynput) for keyboard input
+* [pydub](https://github.com/jiaaro/pydub) for generic audio playback
 
 ## Configuration
