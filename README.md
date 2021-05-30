@@ -1,7 +1,6 @@
 <p align="center">
   <h1 align="center">git-bug</h1>
-<div align="center">
-I wanted a soundboard for my streams
+</p>
 
 ## Features
 `soundboard` is a simple keyboard driven soundboard that:
