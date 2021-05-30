@@ -37,7 +37,7 @@
     },
     { "key": "f12", "sound": "/home/brodie/music/sound-clips/idiot.wav" }
   ],
-  "help": '`'
+  "help": "`"
 }
 ```
 
