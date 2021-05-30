@@ -5,12 +5,25 @@ from pydub import AudioSegment
 from pydub.playback import play
 import json
 import sys
-from os.path import expanduser
+from os.path import expanduser, isfile
 
 keyboard_controller = Controller()
 config_path = expanduser("~") + "/.config/soundboard.json"
 bindings = {}
 help_key = "?"
+default_config ="""{
+  "bindings": [
+    {
+      "key": "f1",
+      "sound": "PATH/TO/FILE",
+      "name": "NAME",
+      "repeat": 1,
+      "start": 0,
+      "end": 100
+    }
+  ],
+  "help": "`"
+}"""
 
 # User friendly form of key names
 special_keys = {Key.f1: 'f1',
@@ -53,7 +66,7 @@ special_keys = {Key.f1: 'f1',
         Key.right: 'right',
         Key.down: 'down'}
 
-with open(config_path) as config:
+def load_config(data):
     data = json.load(config)
     i = 1
     for binding in data['bindings']:
@@ -114,9 +127,20 @@ with open(config_path) as config:
         i+=1
 
     try:
+        global help_key
         help_key = data['help']
     except KeyError:
         pass
+
+try:
+    with open(config_path) as config:
+        load_config(config)
+# Create default file if config missing
+except FileNotFoundError:
+    print(f"Config at {config_path} does not exist, default file created")
+    with open(config_path, "w+") as config:
+        config.write(default_config)
+    sys.exit(1)
 
 # Print out debug key names
 def key_names(key):
@@ -144,7 +168,6 @@ def help_screen():
         print(f"{key}: {bindings[key][0]}: {bindings[key][1]}")
 
 def on_press(key):
-    key_names(key)
     try:
         if key.char == help_key:
             help_screen()
