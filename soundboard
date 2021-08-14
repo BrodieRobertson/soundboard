@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from pynput import keyboard
 from pynput.keyboard import Key, Controller
 from pydub import AudioSegment
@@ -6,8 +7,11 @@ from pydub.playback import play
 import json
 import sys
 from os.path import expanduser, isfile
+from time import sleep
+import threading
 
 keyboard_controller = Controller()
+playingSound = False
 config_path = expanduser("~") + "/.config/soundboard.json"
 bindings = {}
 help_key = "?"
@@ -152,6 +156,8 @@ def key_names(key):
             key))
 
 def play_song(song, repeat, volume, start, end):
+    global playingSound
+    playingSound = True
     # Splice the audio clip
     if start != None and end == None:
         song = song[start:]
@@ -159,31 +165,44 @@ def play_song(song, repeat, volume, start, end):
         song = song[:end]
     elif start != None and end != None:
         song = song[start:end]
-
     # Apply effects after slicing to avoid being cut
     play((song * repeat) + volume)
+    playingSound = False
 
 def help_screen():
     for key in bindings:
         print(f"{key}: {bindings[key][0]}: {bindings[key][1]}")
 
 def on_press(key):
+    # Handle keys with char forms
     try:
+        # Show Help
         if key.char == help_key:
             help_screen()
-        elif key.char in bindings:
+        # Play sound
+        elif key.char in bindings and playingSound == False:
             binding = bindings[key.char]
-            play_song(binding[2], binding[3], binding[4], binding[5], binding[6])
+            th = threading.Thread(target=play_song, args=(
+                binding[2], binding[3], binding[4], binding[5], binding[6]))
+            th.start()
+    # Handle other keys
     except AttributeError:
         if key in special_keys:
             key = special_keys[key]
+        # Show help
         if key == help_key:
             help_screen()
-        elif key in bindings:
+        # Play sound
+        elif key in bindings and playingSound == False:
             binding = bindings[key]
-            play_song(binding[2], binding[3], binding[4], binding[5], binding[6])
+            th = threading.Thread(target=play_song, args=(
+                binding[2], binding[3], binding[4], binding[5], binding[6]))
+            th.start()
 
+listener = None
 # Collect events until released
-with keyboard.Listener(
-        on_press=on_press) as listener:
-    listener.join()
+while True:
+    if listener == None:
+        listener = keyboard.Listener(
+                on_press=on_press)
+        listener.start()
